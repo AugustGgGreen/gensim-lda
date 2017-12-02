@@ -19,9 +19,10 @@ def preprocess(corpus_text,dict_path,corpus_path):
     corpus=corpora.TextCorpus(input=corpus_text,token_filters=[remove_stopwords])
     corpus.dictionary.save_as_text(dict_path)
     MmCorpus.serialize(corpus_path,corpus)
+
 def Train_LDA(model_path,corpus_path,dict_path,num_topics,alpha):
     dictioary=Dictionary.load_from_text(dict_path)
-    corpus = MmCorpus.length(corpus_path)
+    corpus = MmCorpus(corpus_path)
     lda=LdaModel(corpus=corpus,id2word=dictioary,num_topics=num_topics,alpha=alpha)
     lda.save(model_path)
     print(lda.show_topics(num_topics))
@@ -39,8 +40,9 @@ def main():
     model_path="../model/video.lda.model"
     start = datetime.datetime.now()
     logging.info("Start Time: {}".format(start))
+    end1=datetime.datetime.now()
     if(not file_exist(corpus_path) or not file_exist(dict_path)):
-        preprocess(corpus_text,corpus_path,dict_path)
+        preprocess(corpus_text,dict_path,corpus_path)
         end1 = datetime.datetime.now()
         logging.info("End of preprocess time:{}\n".format(end1))
         logging.info("Preprocess time token {} \n".format(end1 - start))
