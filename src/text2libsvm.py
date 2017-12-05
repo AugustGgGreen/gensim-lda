@@ -45,10 +45,10 @@ def load_file(input_file,libsvm_file,dict_file):
             word_list.append(str(doc[word][1]) + ":" + str(doc[word][0]))
         output_libsvm.write(" ".join(word_list)+'\n')
         logger.info("the libsvm format of the doc" + " ".join(word_list))
-        for word in word_dict:
-            output_dict.write(str(word_dict[word][1])+'\t' + word + '\t' + str(word_dict[word][0]) + '\n')
-        index = index + 1
         line = input.readline()
+        index = index + 1
+    for word in word_dict:
+            output_dict.write(str(word_dict[word][1])+ str('\t') + word +  str('\t') + str(word_dict[word][0]) + '\n')
 
 def main():
     if len(sys.argv)!=1:
