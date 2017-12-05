@@ -10,8 +10,11 @@ from gensim.models.ldamodel import LdaModel
 import sys
 import os
 import datetime
+
+logging.basicConfig(format='%(asctime)s : %(levelname)s: %(message)s', level=logging.INFO,filename="../logs/video.lda.log")
 def file_exist(path):
     return os.path.exists(path)
+
 def preprocess(corpus_text,dict_path,corpus_path):
     if(not file_exist(corpus_text)):
         logging.error("corpus file not exist!")
@@ -20,12 +23,13 @@ def preprocess(corpus_text,dict_path,corpus_path):
     corpus.dictionary.save_as_text(dict_path)
     MmCorpus.serialize(corpus_path,corpus)
 
-def Train_LDA(model_path,corpus_path,dict_path,num_topics,alpha):
+def Train_LDA(model_path,corpus_path,dict_path,num_topics,alpha,eta,iterations):
     dictioary=Dictionary.load_from_text(dict_path)
     corpus = MmCorpus(corpus_path)
-    lda=LdaModel(corpus=corpus,id2word=dictioary,num_topics=num_topics,alpha=alpha)
+    lda=LdaModel(corpus=corpus,id2word=dictioary,num_topics=num_topics,alpha=alpha,iterations=iterations,eta=eta)
     lda.save(model_path)
-    print(lda.show_topics(num_topics))
+    for topic in lda.show_topics(num_topics=num_topics,num_words=20,formatted=False):
+            print(topic)
 def main():
     #if(len(sys.argv) != 4):
     #    print("Usage: python lda.py <corpus_text> <corpus_path>, <dictionary_path> <model_path>")
@@ -46,7 +50,7 @@ def main():
         end1 = datetime.datetime.now()
         logging.info("End of preprocess time:{}\n".format(end1))
         logging.info("Preprocess time token {} \n".format(end1 - start))
-    Train_LDA(model_path=model_path,corpus_path=corpus_path,dict_path=dict_path,num_topics=100,alpha=0.01)
+    Train_LDA(model_path=model_path,corpus_path=corpus_path,dict_path=dict_path,num_topics=400,alpha=0.125,iterations=400,eta=0.01)
     end2 = datetime.datetime.now()
     logging.info("End of Train time:{}\n".format(end2))
     logging.info("Train time token{}\n".format(end2-end1))
