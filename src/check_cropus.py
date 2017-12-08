@@ -1,15 +1,27 @@
 import logging
 import sys
+import codecs
 
+logger = logging.getLogger("lightlda-check-log")
+logger.setLevel(logging.DEBUG)
+fh = logging.FileHandler("../logs/LightLDA/check.log")
+fh.setLevel(logging.DEBUG)
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+fh.setFormatter(formatter)
+ch.setFormatter(formatter)
+logger.addHandler(fh)
+logger.addHandler(ch)
 
 def load_dictionary(dictionary_path):
     dict_corpus = {}
-    input = open(dictionary_path, "r")
+    input = codecs.open(dictionary_path, "r","utf-8")
     line = input.readline()
     index = 1
     while line:
         if len(line.split('\t')) != 3:
-            logging.error("The Format of the word" + str(index) + line)
+            logger.debug("The Format of the word is error" + str(index)+ "    "+ line)
             index = index + 1
             continue
         wordid, word, wordTerm = line.split('\t')
@@ -26,29 +38,38 @@ def check_doc(doc,dictionary):
     return True
 
 def check_libsvm(libsvm_path, dictionary):
-    input = open(libsvm_path, "r")
+    input = codecs.open(libsvm_path, "r", "utf-8")
     line = input.readline()
+    index = 1
     while line:
-        if len(line.spilt("\t")) == 2:
-            if(check_doc(line.split("\t")[1],dictionary)):
-                continue
-            else:
-                logging.error("The doc fomat is error" + str(index) + line)
+        line=line.strip()
+        logger.info("Check the doc:"+ line)
+        if len(line.split("\t")) == 2:
+            words = line.split("\t")[1]
+            for word in words.split(' '):
+                if(check_doc(word.split(":")[0],dictionary)):
+                    continue
+                else:
+                    logger.debug("The doc format is error:" + str(index) + "    "+ line)
+                    print(index)
         else:
-            logging.error("The doc fomat is error" + str(index) + line)
-
+            logger.debug("The doc format is error:" + str(index) + "    " + line)
+            print(index)
         index = index+1
-        line = input.readlie()
+        line = input.readline()
 
 
 def main():
-    if (len(sys.argv) != 3):
-        print("Usage:python check_corpus.py cropus_path dictionary_path")
-    dict_path = sys.argv[1]
-    cropus_path = sys.argv[2]
+    if len(sys.argv)!=1:
+        print("Usage:python check_corpus.py <cropus_path> <dictionary_path>")
+        exit(-1)
+    dict_path = "../data/LightLDA/pp"
+    #sys.argv[1]
+    cropus_path = "../data/LightLDA/kk.libsvm"
+    #sys.argv[2]
     dict_cropus = dict(load_dictionary(dictionary_path=dict_path))
     check_libsvm(libsvm_path=cropus_path, dictionary=dict_cropus)
 
 
-if __name__ == '__main_':
+if __name__ == '__main__':
     main()
